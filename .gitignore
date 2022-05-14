@@ -1,4 +1,7 @@
 server/fec
 model
 
+game.js
+game.js.LICENSE.txt
+
 *.pyc

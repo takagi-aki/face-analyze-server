@@ -1,38 +1,34 @@
+<!DOCTYPE html>
+
+<!--path='/'-->
+
 <video id="video" width="640" height="480" autoplay></video>
-<canvas id="canvas" width="640" height="480" style="background-color:black;"> </canvas>
+<canvas id="canvas" width="640" height="480"></canvas>
+<img id="img"></img>
 <div id="ret_view"></div>
+
+<script src="./res/face.js"></script>
 <script>
-  var video = document.getElementById('video');
-  var canvas = document.getElementById('canvas');
-  var context = canvas.getContext('2d');
-  var ret_view = document.getElementById('ret_view');
+  let video = document.getElementById('video');
+  let canvas = document.getElementById('canvas');
+
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
     navigator.mediaDevices.getUserMedia({ video: true }).then(function (stream) {
       video.srcObject = stream;
       video.play();
     });
   }
-
-  hoge = async() => {
-    context.drawImage(video, 0, 0, 640, 480);
-    var dataURI = canvas.toDataURL();
-    var dataBase64 = dataURI.split( "," )[1];
-    var body = JSON.stringify({ data: dataBase64 });
-    var res = await fetch('./face/emotion', { 
-      method: 'PUT', 
-      headers: {
-        'Content-Type': 'application/json',},
-      body: body
-    });
-    var res = await res.blob();
-    var res = await res.text();
-    var analyzed_info = JSON.parse(res);
-    if(analyzed_info.succeded){
-      ret_view.textContent = JSON.stringify(analyzed_info.data)
+  video.onloadedmetadata = function () {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
     }
-    setTimeout(hoge, 10)
-  }
 
-  hoge()
+  let img = document.getElementById('img');
+  let ret_view = document.getElementById('ret_view');
+
+  face_analyze(video, canvas, (json) => {
+    ret_view.textContent = JSON.stringify(json.data)
+    img.src = "data:image/jpg;base64," + json.img
+  }, './', true);
 
 </script>

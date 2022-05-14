@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+
+<!--path='/game'-->
+
+<html class="maxsize">
+
+<head>
+    <meta charset="utf-8" />
+    <link href="./res/res.css" rel="stylesheet" type="text/css" media="all">
+</head>
+
+<body id="body" class="maxsize">
+    <div id="contents" class="maxsize">
+        <div id="contents-ui" class="maxsize" style="position:absolute; overflow: hidden;">
+        </div>
+    </div>
+</body>
+
+
+<video id="video" width="640" height="480" autoplay hidden></video>
+<div id="ret_view"></div>
+<script src="./res/game.js">
+</script>
+<script src="../res/face.js">
+</script>
+<script>
+    let video = document.getElementById('video');
+    let canvas = document.createElement('canvas');
+
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true }).then(function (stream) {
+            video.srcObject = stream;
+            video.play();
+        });
+    } video.onloadedmetadata = function () {
+        canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+    }
+
+    let body = document.getElementById('body');
+    let ret_view = document.getElementById('ret_view');
+
+    let k = false;
+    let callback = (json) => {
+        if (json.succeded) {
+            ret_view.textContent = json.data.Happiness;
+            if (json.data.Happiness >= 0.5) {
+                body.style.background = "lightpink";
+                k = true;
+            } else {
+                body.style.background = "white";
+                k = false;
+            }
+        } else {
+            body.style.background = "lightblue";
+        }
+    };
+
+    face_analyze(video, canvas, callback, "../");
+
+    window.addEventListener("load", () => {
+        game.gameStart(() => { return k; });
+    });
+</script>
+
+</html>
